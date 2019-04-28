@@ -41,11 +41,9 @@
     // standard Arduino setup()
 void setup() {
   while (!Serial);
-    delay(1000); 
     Wire.begin();
     Serial.begin(115200); 
     tcaselect(4);
-    Wire.begin();
     TWBR = 24;
     mpu.initialize();
     mpu.dmpInitialize();
@@ -57,6 +55,13 @@ void setup() {
     mpu.setZGyroOffset(37);
     mpu.setDMPEnabled(true);
     packetSize = mpu.dmpGetFIFOPacketSize();
+
+    //mpu.setRate(16); // rate = 4
+    uint8_t rate = mpu.getRate();
+    mpu.setDLPFMode(0);
+    uint8_t mode = mpu.getDLPFMode();
+    //Serial.print("mode = ");
+    //Serial.println(mode);
 }
      
 void loop() {
@@ -87,13 +92,24 @@ void loop() {
          mpu.dmpGetGravity(&gravity, &q);
          mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
          
-         Serial.print("n");
+        // Serial.print("n ");
         // Serial.print(NUM);
-         Serial.print(ypr[0], 4);
-         Serial.print(" ");
-         Serial.print(ypr[1], 4);
-         Serial.print(" ");
-         Serial.println(ypr[2], 4);
+        // Serial.print(ypr[0], 4);
+        // Serial.print(" ");
+        // Serial.print(ypr[1], 4);
+         //Serial.print(" ");
+         //Serial.print(ypr[2], 4);
+         //Serial.print(" ");
+         // Serial.print("quat\t");
+         Serial.print("n");
+            Serial.print(q.w);
+            Serial.print(" ");
+            Serial.print(q.x);
+            Serial.print(" ");
+            Serial.print(q.y);
+            Serial.print(" ");
+            Serial.println(q.z);
+            
          delay(10); 
       }
   }
