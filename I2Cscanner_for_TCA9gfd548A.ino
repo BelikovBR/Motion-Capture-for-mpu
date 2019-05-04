@@ -1,17 +1,4 @@
-    /**
-     * TCA9548 I2CScanner.pde -- I2C bus scanner for Arduino
-     *
-     * Based on code c. 2009, Tod E. Kurt, http://todbot.com/blog/
-     *
-     *  Исходное положение для корректировки
-     *  Корректировка
-     *  Опрос датчиков 
-     *  v1: после опроса сразу отправлять на сервер
-     *  v2: формировать пакет и отправлять по беспроводной связи
-     *  Отправка
-     *
-     */
-     #include "I2Cdev.h"
+    #include "I2Cdev.h"
     #include "MPU6050_6Axis_MotionApps20.h"
     MPU6050 mpu;
     uint16_t packetSize;
@@ -36,8 +23,7 @@
       Wire.write(1 << i);
       Wire.endTransmission();  
     }
-     
-     
+      
     // standard Arduino setup()
 void setup() {
   while (!Serial);
@@ -47,12 +33,14 @@ void setup() {
     TWBR = 24;
     mpu.initialize();
     mpu.dmpInitialize();
-    mpu.setXAccelOffset(-4232);
-    mpu.setYAccelOffset(-706);
-    mpu.setZAccelOffset(1729);
-    mpu.setXGyroOffset(173);
-    mpu.setYGyroOffset(-94);
-    mpu.setZGyroOffset(37);
+    
+    mpu.setXAccelOffset(817);
+    mpu.setYAccelOffset(328);
+    mpu.setZAccelOffset(1980);
+    mpu.setXGyroOffset(-46);
+    mpu.setYGyroOffset(9);
+    mpu.setZGyroOffset(40);
+    
     mpu.setDMPEnabled(true);
     packetSize = mpu.dmpGetFIFOPacketSize();
 
