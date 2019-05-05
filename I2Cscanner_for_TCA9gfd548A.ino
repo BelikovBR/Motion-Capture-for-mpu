@@ -7,9 +7,12 @@
     Quaternion q;
     VectorFloat gravity;
     float ypr[3];
-    //int t_pins[] = {4,5};
+  
+    int t_pins[] = {4,6};
+    const int NUMB = 2;
+    int8_t i = 0;
     
-    #include "Wire.h"
+    #include "Wire.h" 
     extern "C" { 
     #include "utility/twi.h"  // from Wire library, so we can do bus scanning
     }
@@ -26,79 +29,93 @@
       
     // standard Arduino setup()
 void setup() {
-  while (!Serial);
+    while (!Serial);
+    delay(1000);
     Wire.begin();
-    Serial.begin(115200); 
-    tcaselect(4);
-    TWBR = 24;
-    mpu.initialize();
-    mpu.dmpInitialize();
-    
-    mpu.setXAccelOffset(817);
-    mpu.setYAccelOffset(328);
-    mpu.setZAccelOffset(1980);
-    mpu.setXGyroOffset(-46);
-    mpu.setYGyroOffset(9);
-    mpu.setZGyroOffset(40);
-    
-    mpu.setDMPEnabled(true);
-    packetSize = mpu.dmpGetFIFOPacketSize();
+    Serial.begin(115200);
 
-    //mpu.setRate(16); // rate = 4
-    uint8_t rate = mpu.getRate();
-    mpu.setDLPFMode(0);
-    uint8_t mode = mpu.getDLPFMode();
-    //Serial.print("mode = ");
-    //Serial.println(mode);
+        tcaselect(4);
+        TWBR = 24;
+        mpu.initialize();
+        mpu.dmpInitialize();
+          
+          mpu.setXAccelOffset(817);
+          mpu.setYAccelOffset(328);
+          mpu.setZAccelOffset(1980);
+          mpu.setXGyroOffset(-46);
+          mpu.setYGyroOffset(9);
+          mpu.setZGyroOffset(40);
+           
+        mpu.setDMPEnabled(true);
+        packetSize = mpu.dmpGetFIFOPacketSize();
+    
+        uint8_t rate = mpu.getRate();
+        mpu.setDLPFMode(0);
+        uint8_t mode = mpu.getDLPFMode();
+
+        tcaselect(6);
+        TWBR = 24;
+        mpu.initialize();
+        mpu.dmpInitialize();
+          mpu.setXAccelOffset(-3433);
+          mpu.setYAccelOffset(308);
+          mpu.setZAccelOffset(1845);
+          mpu.setXGyroOffset(49);
+          mpu.setYGyroOffset(33);
+          mpu.setZGyroOffset(67);
+        mpu.setDMPEnabled(true);
+        packetSize = mpu.dmpGetFIFOPacketSize();
 }
-     
-void loop() {
-    delay(1);
-    fifoCount = mpu.getFIFOCount();
 
-    if (fifoCount == 1024) {
-      mpu.resetFIFO();
-      // Serial.println(F("FIFO overflow!"));
-    }
-    else {
-      //Если полученные данные меньше пакета, то задержка и считываем даные заново
-      while (fifoCount < packetSize) {
-        // Serial.print(fifoCount); Serial.print(" ");
-        delay(1);
-        fifoCount = mpu.getFIFOCount();
-      }    
-      if (fifoCount % packetSize != 0) {
-              mpu.resetFIFO();
-        //  Serial.print("resetFIFO");
+void getDataMpu(int j){
+  delay(1);
+      fifoCount = mpu.getFIFOCount();
+  
+      if (fifoCount == 1024) {
+        mpu.resetFIFO();
+        // Serial.println(F("FIFO overflow!"));
       }
       else {
-         while (fifoCount >= packetSize) {
-           mpu.getFIFOBytes(fifoBuffer, packetSize);
-           fifoCount -= packetSize;
-         }
-         mpu.dmpGetQuaternion(&q, fifoBuffer);
-         mpu.dmpGetGravity(&gravity, &q);
-         mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-         
-        // Serial.print("n ");
-        // Serial.print(NUM);
-        // Serial.print(ypr[0], 4);
-        // Serial.print(" ");
-        // Serial.print(ypr[1], 4);
-         //Serial.print(" ");
-         //Serial.print(ypr[2], 4);
-         //Serial.print(" ");
-         // Serial.print("quat\t");
-         Serial.print("n");
-            Serial.print(q.w);
-            Serial.print(" ");
-            Serial.print(q.x);
-            Serial.print(" ");
-            Serial.print(q.y);
-            Serial.print(" ");
-            Serial.println(q.z);
-            
-         delay(10); 
+        //Если полученные данные меньше пакета, то задержка и считываем даные заново
+        while (fifoCount < packetSize) {
+          // Serial.print(fifoCount); Serial.print(" ");
+          delay(1);
+          fifoCount = mpu.getFIFOCount();
+        }    
+        if (fifoCount % packetSize != 0) {
+                mpu.resetFIFO();
+          //  Serial.print("resetFIFO");
+        }
+        else {
+           while (fifoCount >= packetSize) {
+             mpu.getFIFOBytes(fifoBuffer, packetSize);
+             fifoCount -= packetSize;
+           }
+           mpu.dmpGetQuaternion(&q, fifoBuffer);
+           mpu.dmpGetGravity(&gravity, &q);
+           mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+  
+              Serial.print("n");
+              Serial.print(j);
+              Serial.print(" ");
+              Serial.print(q.w);
+              Serial.print(" ");
+              Serial.print(q.x);
+              Serial.print(" ");
+              Serial.print(q.y);
+              Serial.print(" ");
+              Serial.println(q.z);
+              
+           delay(50); 
+        }  
       }
-  }
+}
+
+void loop() {
+    
+      tcaselect(4);
+      getDataMpu(0);
+
+      tcaselect(6);
+      getDataMpu(1);
 }
