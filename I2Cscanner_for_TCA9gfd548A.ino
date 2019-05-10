@@ -1,3 +1,6 @@
+/* 
+ *  10.05.2019 12:22 - Программа с двумя датчиками заработала удовлетворительно
+*/
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 MPU6050 mpu;
@@ -34,7 +37,7 @@ void setup() {
   Wire.begin();
   Serial.begin(115200);
 
-  tcaselect(4);
+  tcaselect(3);
   TWBR = 24;
   mpu.initialize();
   mpu.dmpInitialize();
@@ -48,8 +51,8 @@ void setup() {
 
   mpu.setDMPEnabled(true);
   packetSize = mpu.dmpGetFIFOPacketSize();
-
-  tcaselect(6);
+  
+  tcaselect(5);
   TWBR = 24;
   mpu.initialize();
   mpu.dmpInitialize();
@@ -108,9 +111,13 @@ void getDataMpu(int j) {
 }
 
 void loop() {
-  tcaselect(4);
+  //выше локтя
+  tcaselect(5);
   getDataMpu(0);
 
-  tcaselect(6);
+ // tcaselect(4);
+ // getDataMpu(1);
+  //ниже локтя
+  tcaselect(3);
   getDataMpu(1);
 }
