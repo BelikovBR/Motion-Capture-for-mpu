@@ -1,6 +1,3 @@
-/* 
- *  10.05.2019 12:22 - Программа с двумя датчиками заработала удовлетворительно
-*/
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 MPU6050 mpu;
@@ -35,6 +32,22 @@ void tcaselect(uint8_t i, uint8_t j) {
 
 }
 
+void tcaclose( uint8_t j){
+    if(j==0){
+    Wire.beginTransmission(0x70);
+    Wire.write(0);    
+    Wire.endTransmission();
+      Serial.println("OK0");
+  }
+  else if (j==1){
+    Wire.beginTransmission(0x71);
+    Wire.write(0);    
+    Wire.endTransmission();
+    Serial.println("OK1");
+  }
+  
+}
+
 // standard Arduino setup()
 void setup() {
   while (!Serial);
@@ -42,7 +55,7 @@ void setup() {
   Wire.begin();
   Serial.begin(115200);
   
-  tcaselect(2,0);
+  tcaselect(7,0);
   TWBR = 24;
   mpu.initialize();
   mpu.dmpInitialize();
@@ -55,7 +68,7 @@ void setup() {
   mpu.setDMPEnabled(true);
   packetSize = mpu.dmpGetFIFOPacketSize();
 
-  tcaselect(2,1);
+  tcaselect(7,1);
   TWBR = 24;
   mpu.initialize();
   mpu.dmpInitialize();
@@ -67,6 +80,7 @@ void setup() {
   mpu.setZGyroOffset(67);
   mpu.setDMPEnabled(true);
   packetSize = mpu.dmpGetFIFOPacketSize();
+  
 }
 
 void getDataMpu(int j) {
@@ -78,7 +92,7 @@ void getDataMpu(int j) {
     // Serial.println(F("FIFO overflow!"));
   }
   else {
-    //Если полученные данные меньше пакета, то задержка и считываем даные заново
+    //���� ���������� ������ ������ ������, �� �������� � ��������� ����� ������
     while (fifoCount < packetSize) {
       // Serial.print(fifoCount); Serial.print(" ");
       delay(1);
@@ -114,8 +128,19 @@ void getDataMpu(int j) {
 }
 
 void loop() {
-  tcaselect(2,0);
+  tcaselect(0,1);
   Serial.println("OK2");
-  getDataMpu(2,1);
-  Serial.println("OK3");
+  delay(10);
+  getDataMpu(0);
+  Serial.println("OK3"); 
+  tcaclose(1);
+  
+  tcaselect(7,0);
+  Serial.println("OK_tcaselect (7,0)");
+  delay(10);
+  getDataMpu(1);
+  Serial.println("OK_getDataMpu");
+  tcaclose(0);
+
+  
 }
